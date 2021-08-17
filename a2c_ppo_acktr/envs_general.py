@@ -162,28 +162,13 @@ def distance(x, y, a, b):
 def toTensor(x):
     return torch.Tensor(x)
 
-
-def make_passive_haptics_env(seed,
-                             num_processes,
-                             gamma,
-                             log_dir,
-                             device,
-                             num_frame_stack=10,
-                             random=False,
-                             eval=False,
-                             ep=0
-                             ):
-    passive_haptics_env = PassiveHapticsEnv(gamma,num_frame_stack, random, eval)
-    return passive_haptics_env
-
-
 class PassiveHapticsEnv(object):
     def __init__(self, gamma, num_frame_stack, random=False, eval=False):
         self.r_l= []
         self.eval = eval
         self.distance = []
-        self.num_frame_stack = num_frame_stack
-        self.gamma = gamma
+        self.num_frame_stack = num_frame_stack  # num of frames stcked before input to the MLP
+        self.gamma = gamma                      # γ used in PPO
         self.observation_space = Box(-1., 1., (num_frame_stack * OBSERVATION_SPACE,))
         self.action_space = Box(-1.0, 1.0, (3,))
         self.obs = []

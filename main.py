@@ -1,13 +1,11 @@
 import os
 import time
-from collections import deque
 from tensorboardX import SummaryWriter
 import numpy as np
 import torch
-import math
 from a2c_ppo_acktr import algo, myutils
 from a2c_ppo_acktr.arguments import get_args
-from a2c_ppo_acktr.envs_general import  make_passive_haptics_env, RunningStats, OBS_NORM, REWARD_SCALE
+from a2c_ppo_acktr.envs_general import  PassiveHapticsEnv, make_passive_haptics_env, RunningStats, OBS_NORM, REWARD_SCALE
 from a2c_ppo_acktr.model import Policy
 from a2c_ppo_acktr.storage import RolloutStorage
 from evaluation import PassiveHapticRdwEvaluate
@@ -24,12 +22,12 @@ def main():
     flag = 0
     R_none = 0
     Dis_none = 0
-    # RunningState = RunningStats()
-    # RewardState =  RunningStats()
+
     torch.set_num_threads(1)
     device = torch.device("cuda:0" if args.cuda else "cpu")
-    #envs = make_rdw_env(args.seed, args.num_processes, args.gamma, args.log_dir, device, 10)
-    envs = make_passive_haptics_env(args.seed, args.num_processes, args.gamma, args.log_dir, device, 10)
+    print(device)
+
+    envs = PassiveHapticsEnv(args.gamma, 10)
     actor_critic = Policy(
         envs.observation_space.shape,
         envs.action_space)
