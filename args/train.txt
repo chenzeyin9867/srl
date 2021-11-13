@@ -1,0 +1,17 @@
+log-interval =  10
+save-interval = 100
+num-steps =     8192
+num-processes = 1 
+lr =            3e-4 
+entropy-coef = 0  
+ppo-epoch = 8
+clip-param = 0.2
+num-mini-batch = 4 
+gamma = 0.99 
+gae-lambda =  0.95 
+num-env-steps = 50000000 
+use-linear-lr-decay = True
+env-name = SRL_1113_ce0_b8192_state3
+test-frames = 50
+draw = true
+path-type = 0

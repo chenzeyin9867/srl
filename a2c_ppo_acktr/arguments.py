@@ -1,10 +1,14 @@
 import argparse
-
+import configparser
 import torch
+from torch._C import default_generator
 
 
 def get_args():
-    parser = argparse.ArgumentParser(description='RL')
+    import configargparse
+    parser = configargparse.ArgumentParser(description='RL')
+    parser.add_argument('--config', is_config_file=True, 
+                        help='config file path')
     parser.add_argument(
         '--algo', default='a2c', help='algorithm to use: a2c | ppo | acktr')
     parser.add_argument(
@@ -155,6 +159,35 @@ def get_args():
         action='store_true',
         default=True,
         help='use a linear schedule on the learning rate')
+
+    parser.add_argument(
+        '--stack-frame',
+        type=int,
+        default=10,
+        help="stack frame num for model"
+    )
+    
+    parser.add_argument(
+        '--draw',
+        action='store_true',
+        help="whether draw paths"
+    )
+    
+    parser.add_argument(
+        '--test-frames',
+        type=int,
+        default=100,
+        help="number of test paths"
+    )
+    
+        
+    parser.add_argument(
+        '--path-type',
+        type=int,
+        default=0,
+        help="path type"
+    )
+    
     args = parser.parse_args()
 
     args.cuda = not args.no_cuda and torch.cuda.is_available()

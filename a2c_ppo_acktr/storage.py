@@ -26,7 +26,7 @@ class RolloutStorage(object):
         self.masks = torch.ones(num_steps + 1, num_processes, 1)
 
         # Masks that indicate whether it's a true terminal state
-        # or time limit end state
+        # or time limit and end state
         self.bad_masks = torch.ones(num_steps + 1, num_processes, 1)
 
         self.num_steps = num_steps
@@ -43,7 +43,7 @@ class RolloutStorage(object):
         self.masks = self.masks.to(device)
         self.bad_masks = self.bad_masks.to(device)
 
-    def insert(self, obs, recurrent_hidden_states, actions, action_log_probs,
+    def insert(self, obs, actions, action_log_probs,
                value_preds, rewards, masks, bad_masks):
         self.obs[self.step + 1].copy_(obs)
         # self.recurrent_hidden_states[self.step +
@@ -78,8 +78,7 @@ class RolloutStorage(object):
                     delta = self.rewards[step] + gamma * self.value_preds[
                         step + 1] * self.masks[step +
                                                1] - self.value_preds[step]
-                    gae = delta + gamma * gae_lambda * self.masks[step +
-                                                                  1] * gae
+                    gae = delta + gamma * gae_lambda * self.masks[step +1] * gae
                     gae = gae * self.bad_masks[step + 1]
                     self.returns[step] = gae + self.value_preds[step]
             else:
@@ -94,10 +93,8 @@ class RolloutStorage(object):
                 gae = 0
                 for step in reversed(range(self.rewards.size(0))):
                     delta = self.rewards[step] + gamma * self.value_preds[
-                        step + 1] * self.masks[step +
-                                               1] - self.value_preds[step]
-                    gae = delta + gamma * gae_lambda * self.masks[step +
-                                                                  1] * gae
+                        step + 1] * self.masks[step +1] - self.value_preds[step]   # δt = rt + γ*V(st+1) - V(st) 
+                    gae = delta + gamma * gae_lambda * self.masks[step +1] * gae   # At = (λ*γ)*A(t+1) + δt
                     self.returns[step] = gae + self.value_preds[step]
             else:
                 self.returns[-1] = next_value

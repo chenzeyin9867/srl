@@ -99,3 +99,4 @@ for iter in range(int(len / interval * 5)):
     plt.grid(True)
     plt.savefig(save_dir + '/Gc_hist.png')
     plt.clf()
+ 

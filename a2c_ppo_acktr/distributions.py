@@ -82,7 +82,9 @@ class DiagGaussian(nn.Module):
                                constant_(x, 0))
 
         self.fc_mean = nn.Sequential(
-            init_(nn.Linear(num_inputs, num_outputs)))
+            init_(nn.Linear(num_inputs, num_outputs)), nn.Tanh())
+        # self.fc_mean = nn.Sequential(
+        #     init_(nn.Linear(num_inputs, num_outputs)), nn.Tanh()) 
         self.logstd = AddBias(torch.zeros(num_outputs))
 
     def forward(self, x):
@@ -95,12 +97,7 @@ class DiagGaussian(nn.Module):
 
         action_logstd = self.logstd(zeros)
         # print(action_mean, action_logstd)
-        return action_mean, action_logstd.exp()-0.5
-
-            # Normal(action_mean, action_logstd.exp())
-        # return None
-        #  return FixedNormal(action_mean, action_logstd.exp()), action_mean, action_logstd.exp()
-
+        return action_mean, action_logstd.exp()
 
 class Bernoulli(nn.Module):
     def __init__(self, num_inputs, num_outputs):

@@ -1,3 +1,4 @@
+from numpy.core.numeric import roll
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -41,19 +42,6 @@ class PPO():
         dist_entropy_epoch = 0
         total_loss_epoch = 0
         for e in range(self.ppo_epoch):
-
-            '''
-            modify here [recompute the advantage]
-            '''
-            # with torch.no_grad():
-            #     next_value = self.actor_critic.get_value(
-            #         rollouts.obs[-1]).detach()
-            # rollouts.compute_returns(next_value, args.use_gae, args.gamma,
-            #                          args.gae_lambda, args.use_proper_time_limits)
-            # advantages = rollouts.returns[:-1] - rollouts.value_preds[:-1]
-            # advantages = (advantages - advantages.mean()) / (
-            #         advantages.std() + 1e-5)
-
             if self.actor_critic.is_recurrent:
                 data_generator = rollouts.recurrent_generator(
                     advantages, self.num_mini_batch)
@@ -105,4 +93,8 @@ class PPO():
         dist_entropy_epoch /= num_updates
         total_loss_epoch /= num_updates
 
-        return value_loss_epoch, action_loss_epoch, dist_entropy_epoch, total_loss_epoch
+        # compute the explained variance
+        explained_variance = (1 - torch.var(rollouts.returns - rollouts.value_preds)) / torch.var(rollouts.returns)
+        
+
+        return value_loss_epoch, action_loss_epoch, dist_entropy_epoch, total_loss_epoch, explained_variance.item()
