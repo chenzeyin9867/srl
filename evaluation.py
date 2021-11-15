@@ -1,17 +1,10 @@
+import os
 import numpy as np
 import torch
-import time
-from srl_core import myutils, arguments
-import argparse
-# from srl_core.envs import *
-from srl_core.envs_general import *
-from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
 from tqdm import trange
-import numpy as np
-from srl_core.FrankENV import *
-import shutil
+from srl_core.envs_general import *
 from srl_core.arguments import get_args
-
 
 def srlEvaluate(actor_critic, ep, flag, **kwargs):
     env = PassiveHapticsEnv(kwargs['gamma'],  kwargs['stack_frame'], eval=True)
@@ -113,18 +106,6 @@ if __name__ == '__main__':
     # test_frames = params['']
     
     r_eval, r_none, flag, std1, std2, std3, gt, gr, gc, c, c_, l, l_ = srlEvaluate(actor_critic, j, flag, **params)
-    # reward, r_none, distance_physical, dis_nosrl, angle_srl, angle_none, flag, r_1, r_2,std_list1, std_list2, std_list3, gt_list, gr_list, gc_list, collide, collide_ = PassiveHapticRdwEvaluate(actor_critic, args.seed,
-    #                                      1, 0.99, None, None, 10, None, 0, args.env_name, False, num, draw, evalType=3)
-    # print("TYPE1:")
-    # print("SRL:\tdistance:{:.2f}\t{:2f}|{:.2f}|{:.2f}\tanglr:{:.2f}\t".format(distance_physical/num, r_1[0], r_1[int(num/2)], r_1[num-1], angle_srl.item()/num))
-    # print("None:\tdistance:{:.2f}\t{:2f}|{:.2f}|{:.2f}\tanglr:{:.2f}\t".format(dis_nosrl/num, r_2[0], r_2[int(num/2)], r_2[num-1], angle_none.item()/num))
-
-    # reward, r_none, distance_physical, dis_nosrl, angle_srl, angle_none, flag, r_1, r_2,std_list1, std_list2, std_list3, gt_list, gr_list, gc_list, collide, collide_ = PassiveHapticRdwEvaluate(actor_critic, args.seed,
-    #                                      1, 0.99, None, None, 10, None, 0, args.env_name, False, num, draw, evalType=1)
-    # print("TYPE2:")
-    # print("SRL:\tdistance:{:.2f}\t{:2f}|{:.2f}|{:.2f}\tanglr:{:.2f}\t".format(distance_physical/num, r_1[0], r_1[int(num/2)], r_1[num-1], angle_srl.item()/num))
-    # print("None:\tdistance:{:.2f}\t{:2f}|{:.2f}|{:.2f}\tanglr:{:.2f}\t".format(dis_nosrl/num, r_2[0], r_2[int(num/2)], r_2[num-1], angle_none.item()/num))
-
     len = len()
     left = int(len/4)
     right = int(len*3/4)
