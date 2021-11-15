@@ -19,18 +19,14 @@ sys.path.append('srl_core')
 # parser = argparse.ArgumentParser(description='RL')
 args = get_args()
 
-env = PassiveHapticsEnv(args.gamma, args.stack_frame, eval=True)
+env = PassiveHapticsEnv(args.gamma, args.stack_frame, args.data, eval=True)
 
 # We need to use the same statistics for normalization as used in training
 obs = env.reset()
-actor_critic = Policy(
-        env.observation_space.shape,
-        env.action_space)
-
 if args.load_epoch != 0:
     
     actor_critic = torch.load('./trained_models/' + args.env_name + '/%d.pth' % args.load_epoch)
-print("Loading the " + args.env_name + '/_%d.pt' % args.load_epoch + ' to train')
+print("Loading the " + args.env_name + '/%d.pt' % args.load_epoch)
 
 gt = []
 gr = []

@@ -33,7 +33,7 @@ def main():
     print(args)
 
     # Instance the env, training batch
-    envs = PassiveHapticsEnv(args.gamma, args.stack_frame, eval=False)
+    envs = PassiveHapticsEnv(args.gamma, args.stack_frame, eval=False, path=args.data)
     
     # The actor module
     actor_critic = Policy(
@@ -119,9 +119,10 @@ def main():
             torch.save(actor_critic, os.path.join(save_path,  "%d.pth" % j))
 
         num = 100
-
+        if j == args.load_epoch:
+            r_none, _, _, _ , _, _, _, c_, l_ = srlEvaluate(None, j, **params)
         if j % args.log_interval == 0:
-            r_eval, r_none, flag, std1, std2, std3, gt, gr, gc, c, c_, l, l_ = srlEvaluate(actor_critic, j, flag, **params)
+            r_eval, std1, std2, std3, gt, gr, gc, c, l, = srlEvaluate(actor_critic, j, **params)
             
             print(args.env_name)
             print(
