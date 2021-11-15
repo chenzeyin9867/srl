@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import os
 from gym.spaces.box import Box
 from srl_core.distributions import FixedNormal
 import random
@@ -11,106 +12,8 @@ PI = np.pi
 PENALTY = torch.Tensor([1.0])
 OBSERVATION_SPACE = 3
 
-
-
-def split(action):
-    a, b, c = action[0]
-    a = 1.060 + 0.2   * a
-    b = 1.145 + 0.345 * b
-    c = 0.13 * c
-    return a, b, c
-
-
-def initialize(seed):
-    xt, yt, dt = 0, 0, 0
-    if seed == 1:
-        xt = 0
-        yt = random.random() * HEIGHT
-        dt = 0
-    elif seed == 2:
-        xt = random.random() * WIDTH
-        yt = HEIGHT
-        # dt = -random.random() * PI
-        dt = -PI / 2.0
-    elif seed == 3:
-        xt = WIDTH
-        yt = random.random() * HEIGHT
-        # dt = random.randint(0, 1) * 1.5 * PI + random.random() * PI / 2. - PI
-        dt = -PI
-    elif seed == 4:
-        xt = random.random() * WIDTH
-        yt = 0
-        # dt = random.random() * PI
-        dt = PI / 2
-
-
-    return xt, yt, dt
-
-
-def norm(theta):
-    if theta < -PI:
-        theta = theta + 2 * PI
-    elif theta > PI:
-        theta = theta - 2 * PI
-    return theta
-
-
-def outbound(x, y):
-    if x <= 0 or x >= WIDTH or y <= 0 or y >= HEIGHT:
-        return True
-    else:
-        return False
-
-
-def min_length_direction(x, y, a, b, cos):  # cause the heading has the direction
-    p1 = torch.Tensor([0, b])
-    # p2 = np.array([1,a+b])
-    p2 = torch.Tensor([1, a + b])
-    # p3 = np.array([-b/a,0])
-    p3 = torch.Tensor([-b / a, 0])
-    # p4 =np.array([(1-b)/a,1])
-    p4 = torch.Tensor([(1 - b) / a, 1.])
-    p = torch.cat((p1, p2, p3, p4))
-    # p = np.concatenate((p1,p2,p3,p4),axis=0)
-    p = p.reshape((4, 2))
-    p = p[p[:, 0].argsort(), :]
-    if cos > 0:
-        c, d = p[2]
-    else:
-        c, d = p[1]
-    len = distance(x, y, c, d)
-    # len = min(distance(x, y, c, d), distance(x, y, e, f))
-    return len
-
-
-def min_length(x, y, a, b):  # min length of the line y = ax+b with intersection with the bounding box of [0,1]
-    p1 = torch.Tensor([0, b])
-    # p2 = np.array([1,a+b])
-    p2 = torch.Tensor([1, a + b])
-    # p3 = np.array([-b/a,0])
-    p3 = torch.Tensor([-b / a, 0])
-    # p4 =np.array([(1-b)/a,1])
-    p4 = torch.Tensor([(1 - b) / a, 1.])
-    p = torch.cat((p1, p2, p3, p4))
-    # p = np.concatenate((p1,p2,p3,p4),axis=0)
-    p = p.reshape((4, 2))
-    p = p[p[:, 0].argsort(), :]
-    c, d = p[1]
-    e, f = p[2]
-    return min(distance(x, y, c, d), distance(x, y, e, f))
-
-
-def distance(x, y, a, b):
-    # return np.sqrt(np.square(x-a)+np.square(y-b))
-    # return torch.sqrt((x - a).pow(2) + (y - b).pow(2))
-    return math.sqrt((x - a) * (x - a) + (y - b) * (y - b))
-
-
-def toTensor(x):
-    return torch.Tensor(x)
-
 class PassiveHapticsEnv(object):
-    def __init__(self, gamma, num_frame_stack, random=False, eval=False):
+    def __init__(self, gamma, num_frame_stack, path, random=False, eval=False):
         self.r_l= []
         self.eval = eval
         self.distance = []
@@ -124,12 +27,10 @@ class PassiveHapticsEnv(object):
         self.y = 0.0
         self.o = 0.0
 
-        # if eval:
-        self.path_file = np.load('/media/common/czy/srl/Dataset/Train_/train/15.npy', allow_pickle=True)
-        # print("Loading the training dataset.")
-        # else:
-        #     self.path_file = np.load('Dataset/train/eval_path_30_angConsistence.npy', allow_pickle=True)
-        #     print("Loading the eval dataset")
+        if not eval:
+            self.path_file = np.load(os.path.join(path, 'train.npy'), allow_pickle=True)
+        else:
+            self.path_file = np.load(os.path.join(path, 'eval.npy'),  allow_pickle=True)
         self.v_path = self.path_file[self.path_cnt]
         self.v_step_pointer = 0         # the v_path counter
 
@@ -138,26 +39,11 @@ class PassiveHapticsEnv(object):
         """
         scale the physical and virtual space into the same square box inside [-1,1]
         """
-        if self.delta_direction_per_iter < 0:
-            eye = -1.0
-        elif self.delta_direction_per_iter > 0:
-            eye = 1.0
-        else:
-            eye = 0.0
-        # return [(self.x_physical+DELTA_X-(WIDTH_ALL)/2)/(WIDTH_ALL/2), (self.y_physical+DELTA_Y-(HEIGHT_ALL/2))/(HEIGHT_ALL/2), (self.p_direction) / (PI),
-        #         (self.x_virtual-(WIDTH_ALL)/2)/(WIDTH_ALL/2), (self.y_virtual-(HEIGHT_ALL/2))/(HEIGHT_ALL/2), (self.v_direction) / (PI),
-        #         # (self.obj_x_p+DELTA_X-(WIDTH_ALL)/2)/(WIDTH_ALL/2), (self.obj_y_p+DELTA_Y-(HEIGHT_ALL)/2)/(HEIGHT_ALL/2), (self.obj_d_p)/(PI),
-        #         # (self.obj_x-(WIDTH_ALL/2))/(WIDTH_ALL/2), (self.obj_y-(HEIGHT_ALL/2))/(HEIGHT_ALL/2), (self.obj_d) / (PI)
-        #         self.delta_direction_per_iter
-        #         ]
-
         state = [ self.x / WIDTH, 
                   self.y / HEIGHT,
                   (self.o + PI) / (2.0 * PI),
                 #   self.delta_direction_per_iter,
                   ]
-        
-        # print(state)
         return state 
 
     def reset(self):
@@ -373,22 +259,7 @@ class PassiveHapticsEnv(object):
                   
         return self.reward, gt_l, gr_l, gc_l, x_l, y_l, std1, std2, std3, collide, length
 
-    def err_angle(self):
 
-        return abs(self.get_reward_angle())*PI
-        # return abs(delta_angle_norm(self.p_direction - self.obj_d_p))
-
-    def final_reward(self):
-    
-        # r = (10 - 0.5 * distance(self.x_physical, self.y_physical, self.obj_x_p, self.obj_y_p) - 0.5*self.err_angle()/PI)
-        # r = (1.0 - self.err_angle()/PI)
-        # print(distance(self.x_physical/WIDTH, self.y_physical/HEIGHT, self.obj_x_p/WIDTH, self.obj_y_p/HEIGHT))
-        r = 10 * (1 - math.pow(distance(self.x_physical/WIDTH, self.y_physical/HEIGHT, self.obj_x_p/WIDTH, self.obj_y_p/HEIGHT), 1))
-        # r = 10 * (2 - math.pow(distance(self.x_physical/WIDTH, self.y_physical/HEIGHT, self.obj_x_p/WIDTH, self.obj_y_p/HEIGHT), 1) - self.err_angle()/ PI)
-        # print(0.1*distance(self.x_physical, self.y_physical, self.obj_x_p, self.obj_y_p), self.err_angle()/PI)
-        # return r 
-        # r = torch.Tensor([0.0])
-        return r
 
     def step_specific_path_nosrl(self, ind, evalType=1):
         x_l = []
@@ -433,24 +304,9 @@ class PassiveHapticsEnv(object):
         return self.reward, x_l, y_l, collide, length
 
     def get_reward(self):
-        # d_wall = min(self.x_physical/WIDTH, (WIDTH-self.x_physical)/WIDTH, (self.y_physical)/HEIGHT, (HEIGHT-self.y_physical)/HEIGHT)
-        # r2 = self.get_reward_distance()
         r1 = self.get_reward_wall()
-        # r3 = self.get_reward_angle()
         return r1
 
-
-    def print(self):
-        print("physical:", self.x_physical, " ", self.y_physical, " ", self.p_direction)
-        print("virtual:", self.x_virtual, " ", self.y_virtual, " ", self.v_direction)
-
-    def get_reward_distance(self):
-        d1_ratio = distance((self.x_physical+DELTA_X)/WIDTH_ALL, (self.y_physical+DELTA_Y)/HEIGHT_ALL, (self.obj_x_p+DELTA_X)/WIDTH_ALL, (self.obj_y_p+DELTA_Y)/HEIGHT_ALL)
-        d2_ratio = distance(self.x_virtual/WIDTH_ALL, self.y_virtual/HEIGHT_ALL, self.obj_x/WIDTH_ALL, self.obj_y/WIDTH_ALL)
-        # delta_distance_ratio = abs(d1_ratio-d2_ratio) * np.exp(-3*d2_ratio)
-        delta_distance_ratio = abs(d1_ratio-d2_ratio)
-        # max_d = max(abs(self.x_physical-self.obj_x_p)/WIDTH, abs(self.y_physical-self.obj_y_p)/HEIGHT)
-        return toTensor(delta_distance_ratio)
 
     def get_reward_wall(self):
         '''
@@ -478,35 +334,6 @@ class PassiveHapticsEnv(object):
         # return distance(x, y, 0.5, 0.5) * 1.4
         return r 
 
-    '''
-    This method compute the angle error between the person and the target
-    '''
-    def get_reward_angle(self):
-        # return self.err_angle() / (PI)
-        vec1 = np.array([self.obj_x_p-self.x_physical, self.obj_y_p -self.y_physical])
-        vec2 = np.array([self.obj_x - self.x_virtual, self.obj_y - self.y_virtual])
-
-        # vec1 = np.array([np.cos(self.obj_d_p), np.sin(self.obj_d_p)])
-        # vec2 = np.array([np.cos(self.obj_d),   np.sin(self.obj_d)])
-
-        vec3 = np.array([np.cos(self.p_direction), np.sin(self.p_direction)])
-        vec4 = np.array([np.cos(self.v_direction), np.sin(self.v_direction)])
-        vec1 = normaliztion(vec1)
-        vec2 = normaliztion(vec2)
-        ang1 = np.arccos(np.clip(np.dot(vec1, vec3), -1.0, 1.0))
-        ang2 = np.arccos(np.clip(np.dot(vec2, vec4), -1.0, 1.0))
-        # num1 = np.dot(vec1, vec3)
-        # num2 = np.dot(vec2, vec4)
-        if np.cross(vec1, vec3) * np.cross(vec2, vec4) < 0:
-            ang = delta_angle_norm(ang1 + ang2)
-        else:
-            ang = delta_angle_norm(ang1 - ang2)
-        # if math.isnan(ang):
-        #     self.print()
-        #     print(np.dot(vec1, vec3))
-        #     print(np.dot(vec2, vec4))
-        # print(ang1, ang2)
-        return abs(ang)/PI
 
     def set(self, x, y, d):
         self.x, self.y, self.o = x, y, d
@@ -541,9 +368,14 @@ class PassiveHapticsEnv(object):
         return gt, gr, gc
 
 
-    '''
-    scale the angle into 0-pi
-    '''
+
+'''
+    Some utils 
+'''
+
+'''
+scale the angle into 0-pi
+'''
 def delta_angle_norm(x):
     if x >= PI:
         x = 2 * PI - x
@@ -562,34 +394,87 @@ def toTensor(x):
 def toPI(x):
     return x * PI / 180.0
 
+def split(action):
+    a, b, c = action[0]
+    a = 1.060 + 0.2   * a
+    b = 1.145 + 0.345 * b
+    c = 0.13 * c
+    return a, b, c
 
-class RunningStats:
 
-    def __init__(self):
-        self.n = 0
-        self.old_m = 0
-        self.new_m = 0
-        self.old_s = 0
-        self.new_s = 0
+def initialize(seed):
+    xt, yt, dt = 0, 0, 0
+    if seed == 1:
+        xt = 0
+        yt = random.random() * HEIGHT
+        dt = 0
+    elif seed == 2:
+        xt = random.random() * WIDTH
+        yt = HEIGHT
+        # dt = -random.random() * PI
+        dt = -PI / 2.0
+    elif seed == 3:
+        xt = WIDTH
+        yt = random.random() * HEIGHT
+        # dt = random.randint(0, 1) * 1.5 * PI + random.random() * PI / 2. - PI
+        dt = -PI
+    elif seed == 4:
+        xt = random.random() * WIDTH
+        yt = 0
+        # dt = random.random() * PI
+        dt = PI / 2
 
-    def clear(self):
-        self.n = 0
 
-    def push(self, x):
-        self.n += 1
+    return xt, yt, dt
 
-        if self.n == 1:
-            self.old_m = self.new_m = x
-            self.old_s = 0
-        else:
-            self.new_m = self.old_m + (x - self.old_m) / self.n
-            self.new_s = self.old_s + (x - self.old_m) * (x - self.new_m)
 
-            self.old_m = self.new_m
-            self.old_s = self.new_s
+def norm(theta):
+    if theta < -PI:
+        theta = theta + 2 * PI
+    elif theta > PI:
+        theta = theta - 2 * PI
+    return theta
 
-    def mean(self):
-        return self.new_m if self.n else 0.0
 
-    def variance(self):
-        return self.new_s / (self.n - 1) if self.n > 1 else torch.Tensor([0.0])
+def outbound(x, y):
+    if x <= 0 or x >= WIDTH or y <= 0 or y >= HEIGHT:
+        return True
+    else:
+        return False
+
+
+def min_length_direction(x, y, a, b, cos):  # cause the heading has the direction
+    p1 = torch.Tensor([0, b])
+    p2 = torch.Tensor([1, a + b])
+    p3 = torch.Tensor([-b / a, 0])
+    p4 = torch.Tensor([(1 - b) / a, 1.])
+    p = torch.cat((p1, p2, p3, p4))
+    p = p.reshape((4, 2))
+    p = p[p[:, 0].argsort(), :]
+    if cos > 0:
+        c, d = p[2]
+    else:
+        c, d = p[1]
+    len = distance(x, y, c, d)
+    return len
+
+
+def min_length(x, y, a, b):  # min length of the line y = ax+b with intersection with the bounding box of [0,1]
+    p1 = torch.Tensor([0, b])
+    p2 = torch.Tensor([1, a + b])
+    p3 = torch.Tensor([-b / a, 0])
+    p4 = torch.Tensor([(1 - b) / a, 1.])
+    p = torch.cat((p1, p2, p3, p4))
+    p = p.reshape((4, 2))
+    p = p[p[:, 0].argsort(), :]
+    c, d = p[1]
+    e, f = p[2]
+    return min(distance(x, y, c, d), distance(x, y, e, f))
+
+
+def distance(x, y, a, b):
+    return math.sqrt((x - a) * (x - a) + (y - b) * (y - b))
+
+
+def toTensor(x):
+    return torch.Tensor(x)

@@ -188,6 +188,13 @@ def get_args():
         help="path type"
     )
     
+    parser.add_argument(
+        '--data',
+        type=str,
+        default='Dataset/Train_/train/15.npy',
+        help='dataset path'
+    )
+    
     args = parser.parse_args()
 
     args.cuda = not args.no_cuda and torch.cuda.is_available()
