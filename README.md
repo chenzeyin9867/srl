@@ -8,8 +8,12 @@ This implementation is based on fantastic implementaion [PPO](https://github.com
 
 # Training
 * Update your env configuaration like [w, h] of your physical space in srl_core/envs_general.py
-* Fine-tune your hyper-parameters in args/train.txt
-* Training a new model using  `python main.py --config args/train.txt`
-
+* Fine-tune your hyper-parameters in ```args/train.txt```
+* Training a new model  
+    ```bash
+    python main.py --config args/train.txt
+    ```
 # Evaluation and plot the heatmap
-* `python test_heatmap.py --config args/eval.txt --load_epoch $Your_MODEL`
+* ```bash
+    python test_heatmap.py --config args/eval.txt --load_epoch $Your_MODEL
+  ```  
