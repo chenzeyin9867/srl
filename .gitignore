@@ -112,3 +112,6 @@ trained_models/
 *.png
 *.jpg
 *.npy
+
+.idea/
+.vscode/
