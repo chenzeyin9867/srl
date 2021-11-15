@@ -31,7 +31,7 @@ gr = []
 gc = []
 no_srl_reward = 0
 # for _ in range(len(v_path)):
-T = 90
+T = 30
 cnt = 0
 interval = 50
 

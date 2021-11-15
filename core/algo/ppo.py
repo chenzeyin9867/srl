@@ -94,7 +94,7 @@ class PPO():
         total_loss_epoch /= num_updates
 
         # compute the explained variance
-        explained_variance = (1 - torch.var(rollouts.returns - rollouts.value_preds)) / torch.var(rollouts.returns)
+        explained_variance = 1 - torch.var(rollouts.returns - rollouts.value_preds) / torch.var(rollouts.returns)
         
 
         return value_loss_epoch, action_loss_epoch, dist_entropy_epoch, total_loss_epoch, explained_variance.item()

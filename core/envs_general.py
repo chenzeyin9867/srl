@@ -138,8 +138,8 @@ class PassiveHapticsEnv(object):
         self.o = 0.0
 
         # if eval:
-        self.path_file = np.load('/media/common/czy/srl/Dataset/Train_/eval/15.npy', allow_pickle=True)
-        print("Loading the training dataset.")
+        self.path_file = np.load('/media/common/czy/srl/Dataset/Train_/train/15.npy', allow_pickle=True)
+        # print("Loading the training dataset.")
         # else:
         #     self.path_file = np.load('Dataset/train/eval_path_30_angConsistence.npy', allow_pickle=True)
         #     print("Loading the eval dataset")

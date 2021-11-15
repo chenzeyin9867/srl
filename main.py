@@ -4,13 +4,13 @@ from tensorboardX import SummaryWriter
 import numpy as np
 import torch
 import tqdm
-from a2c_ppo_acktr import algo, myutils
-from a2c_ppo_acktr.arguments import get_args
-from a2c_ppo_acktr.envs_general import  PassiveHapticsEnv
-from a2c_ppo_acktr.model import Policy
-from a2c_ppo_acktr.storage import RolloutStorage
+from core import algo, myutils
+from core.arguments import get_args
+from core.envs_general import  PassiveHapticsEnv
+from core.model import Policy
+from core.storage import RolloutStorage
 from evaluation import srlEvaluate
-from a2c_ppo_acktr.distributions import FixedNormal
+from core.distributions import FixedNormal
 
 # OBS_NORM = False
 def main():

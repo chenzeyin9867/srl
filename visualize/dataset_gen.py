@@ -63,9 +63,9 @@ if __name__ == '__main__':
     
     
     pathnum = 5000 if mode == 'eval' else 100000
-    for Epoch in range(pathnum):
-        if Epoch % 1000 == 0:
-            print("Epoch:", Epoch)
+    for Epoch in trange(pathnum):
+        # if Epoch % 1000 == 0:
+        #     print("Epoch:", Epoch)
         Dchange = []
         Dchange.append(0)
         iter = 0
@@ -77,7 +77,7 @@ if __name__ == '__main__':
                 turn_flag = np.random.randint(STEP_LOW, STEP_HIGH)
                 delta_direction = random.normalvariate(0, 45)
                 delta_direction = delta_direction * PI / 180.
-                random_radius = 2 * random.random() + 2
+                random_radius = 1 * random.random() + 2
                 num_change_direction = abs(delta_direction * random_radius / VELOCITY)
                 # print(delta_direction * 180 / PI, num_change_direction)
                 delta_direction_per_iter = delta_direction / num_change_direction
