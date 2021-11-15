@@ -64,13 +64,7 @@ for _ in trange(1, T):
 t_np = np.array(gt).reshape((cnt, -1)).transpose(1, 0)
 r_np = np.array(gr).reshape((cnt, -1)).transpose(1, 0)
 c_np = np.array(gc).reshape((cnt, -1)).transpose(1, 0)
-# t_np = np.resize(t_np, (30, 30))
-# r_np = np.resize(r_np, (30, 30))
-# c_np = np.resize(c_np, (30, 30))
-    # else:
-    #     t_np += np.array(gt).reshape((cnt, -1)).transpose(1, 0)
-    #     r_np += np.array(gr).reshape((cnt, -1)).transpose(1, 0)
-    #     c_np += np.array(gc).reshape((cnt, -1)).transpose(1, 0)
+
 sns_plot = sns.heatmap(t_np, cmap="rainbow")
 # save_dir = 'plot_result/heat_map/' + args.load_param.split('/')[-1]
 save_dir = os.path.join('plot_result/heat_map', args.env_name)
