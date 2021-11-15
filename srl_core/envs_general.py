@@ -1,12 +1,8 @@
-import os
-import gym
 import numpy as np
 import torch
 from gym.spaces.box import Box
-from torch.distributions.utils import vec_to_tril_matrix
-from core.distributions import FixedNormal
+from srl_core.distributions import FixedNormal
 import random
-import matplotlib.pyplot as plt
 import math
 
 VELOCITY = 1.4 / 60.0

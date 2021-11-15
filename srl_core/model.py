@@ -3,8 +3,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from a2c_ppo_acktr.distributions import Bernoulli, Categorical, DiagGaussian, FixedNormal
-from a2c_ppo_acktr.myutils import init
+from srl_core.distributions import Bernoulli, Categorical, DiagGaussian, FixedNormal
+from srl_core.myutils import init
 
 
 class Flatten(nn.Module):
@@ -146,11 +146,11 @@ class NNBase(nn.Module):
                 start_idx = has_zeros[i]
                 end_idx = has_zeros[i + 1]
 
-                rnn_scores, hxs = self.gru(
+                rnn_ssrl_cores, hxs = self.gru(
                     x[start_idx:end_idx],
                     hxs * masks[start_idx].view(1, -1, 1))
 
-                outputs.append(rnn_scores)
+                outputs.append(rnn_ssrl_cores)
 
             # assert len(outputs) == T
             # x is a (T, N, -1) tensor

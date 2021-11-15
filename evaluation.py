@@ -1,16 +1,16 @@
 import numpy as np
 import torch
 import time
-from core import myutils, arguments
+from srl_core import myutils, arguments
 import argparse
-# from a2c_ppo_acktr.envs import *
-from core.envs_general import *
+# from srl_core.envs import *
+from srl_core.envs_general import *
 from matplotlib.backends.backend_pdf import PdfPages
 from tqdm import trange
 import numpy as np
-from core.FrankENV import *
+from srl_core.FrankENV import *
 import shutil
-from core.arguments import get_args
+from srl_core.arguments import get_args
 
 
 def srlEvaluate(actor_critic, ep, flag, **kwargs):

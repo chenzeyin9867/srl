@@ -7,7 +7,7 @@ This repo is a basic implementation of the paper [A Steering Algorithm for Redir
 This implementation is based on fantastic implementaion [PPO](https://github.com/ikostrikov/pytorch-a2c-ppo-acktr-gail) by Kostrikov.
 
 # Training
-* Update your env configuaration like [w, h] of your physical space in core/envs_general.py
+* Update your env configuaration like [w, h] of your physical space in srl_core/envs_general.py
 * Fine-tune your hyper-parameters in args/train.txt
 * Training a new model using  `python main.py --config args/train.txt`
 

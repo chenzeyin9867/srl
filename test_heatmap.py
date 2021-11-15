@@ -10,11 +10,12 @@ import matplotlib.cm as cm
 import seaborn as sns
 from tqdm import trange
 sns.set()
-from a2c_ppo_acktr.envs_general import *
-from a2c_ppo_acktr.arguments import get_args
-# from a2c_ppo_acktr.myutils import get_render_func, get_vec_normalize
+from srl_core.envs_general import *
+from srl_core.arguments import get_args
+from srl_core.model import *
+# from srl_core.myutils import get_render_func, get_vec_normalize
 
-sys.path.append('a2c_ppo_acktr')
+sys.path.append('srl_core')
 # parser = argparse.ArgumentParser(description='RL')
 args = get_args()
 
@@ -22,7 +23,12 @@ env = PassiveHapticsEnv(args.gamma, args.stack_frame, eval=True)
 
 # We need to use the same statistics for normalization as used in training
 obs = env.reset()
+actor_critic = Policy(
+        env.observation_space.shape,
+        env.action_space)
+
 if args.load_epoch != 0:
+    
     actor_critic = torch.load('./trained_models/' + args.env_name + '/%d.pth' % args.load_epoch)
 print("Loading the " + args.env_name + '/_%d.pt' % args.load_epoch + ' to train')
 

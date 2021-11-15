@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions import Normal
-from a2c_ppo_acktr.myutils import AddBias, init
+from srl_core.myutils import AddBias, init
 
 """
 Modify standard PyTorch distributions so they are compatible with this code.

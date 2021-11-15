@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-from a2c_ppo_acktr.envs import make_rdw_env, make_passive_haptics_env
+from srl_core.envs import make_rdw_env, make_passive_haptics_env
 
-# from a2c_ppo_acktr.myutils import get_render_func, get_vec_normalize
+# from srl_core.myutils import get_render_func, get_vec_normalize
 
-sys.path.append('a2c_ppo_acktr')
+sys.path.append('srl_core')
 
 parser = argparse.ArgumentParser(description='RL')
 parser.add_argument(

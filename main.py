@@ -4,13 +4,13 @@ from tensorboardX import SummaryWriter
 import numpy as np
 import torch
 import tqdm
-from core import algo, myutils
-from core.arguments import get_args
-from core.envs_general import  PassiveHapticsEnv
-from core.model import Policy
-from core.storage import RolloutStorage
+from srl_core import algo, myutils
+from srl_core.arguments import get_args
+from srl_core.envs_general import  PassiveHapticsEnv
+from srl_core.model import Policy
+from srl_core.storage import RolloutStorage
 from evaluation import srlEvaluate
-from core.distributions import FixedNormal
+from srl_core.distributions import FixedNormal
 
 # OBS_NORM = False
 def main():
@@ -134,20 +134,18 @@ def main():
                   "reset_phrl:", c, " reset_none:", c_,  "\tSRL_dis:{:.4f}\tNone_dis:{:.4f}\t|t:{:.2f} "
                     .format(l, l_, time.time() - t_start)) 
             t_start = time.time()
+            
         writer1.add_scalar('value_loss', value_loss, global_step=j)
         writer1.add_scalar('actor_loss', action_loss, global_step=j)
         writer1.add_scalar('entropy_loss', entropy_loss, global_step=j)
         writer1.add_scalar('total_loss', total_loss, global_step=j)
-        # writer1.add_scalar('physical_distance_error', distance, global_step=j)
         writer1.add_scalar('phrl_reward', r_eval, global_step=j)
-        # writer1.add_scalar('physical_angle_error', angle_srl, global_step=j)
-        # writer1.add_scalar('median_distance_error', m1[mid], global_step=j)
-        writer1.add_scalar('gt', np.mean(gt).item(), global_step=j)
-        writer1.add_scalar('gr', np.mean(gr).item(), global_step=j)
-        writer1.add_scalar('gc', np.mean(gc).item(), global_step=j)
         writer1.add_scalar('reset', c, global_step=j)
         writer1.add_scalar("explained_var", explained_variance, global_step=j)
         writer1.add_scalar("SRL_distance", l, global_step=j)
+        writer1.add_scalar('gt', np.mean(gt).item(), global_step=j)
+        writer1.add_scalar('gr', np.mean(gr).item(), global_step=j)
+        writer1.add_scalar('gc', np.mean(gc).item(), global_step=j)
         
 if __name__ == "__main__":
     main()
