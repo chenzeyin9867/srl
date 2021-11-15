@@ -15,5 +15,5 @@ This implementation is based on fantastic implementaion [PPO](https://github.com
     ```
 # Evaluation and plot the heatmap
 * ```bash
-    python test_heatmap.py --config args/eval.txt --load_epoch $Your_MODEL
+  python test_heatmap.py --config args/eval.txt --load_epoch $Your_MODEL
   ```  
