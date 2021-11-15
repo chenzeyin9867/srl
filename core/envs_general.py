@@ -4,23 +4,14 @@ import numpy as np
 import torch
 from gym.spaces.box import Box
 from torch.distributions.utils import vec_to_tril_matrix
-from a2c_ppo_acktr.distributions import FixedNormal
+from core.distributions import FixedNormal
 import random
 import matplotlib.pyplot as plt
 import math
 
-OBS_NORM = False
-REWARD_SCALE = False
 VELOCITY = 1.4 / 60.0
 HEIGHT, WIDTH = 20.0 , 20.0
-HEIGHT_ALL, WIDTH_ALL = 5.79, 5.79
-FRAME_RATE = 60
-RATIO = 10
 PI = np.pi
-STEP_LOW = int(0.5 / VELOCITY)
-STEP_HIGH = int(3.5 / VELOCITY)
-DELTA_X = (WIDTH_ALL - WIDTH) / 2.0
-DELTA_Y = (HEIGHT_ALL - HEIGHT) / 2.0
 PENALTY = torch.Tensor([1.0])
 OBSERVATION_SPACE = 3
 
